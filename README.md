@@ -41,3 +41,5 @@ Either start IDE bundled with plugin via gradle:
 ./gradlew runIde
 ```                                             
 Or install built plugin manually in the Settings->Plugin section of IDEA
+
+Path to jar : `intellij-codeceptjs/build/libs/intellij-codeceptjs-1.0.jar`
