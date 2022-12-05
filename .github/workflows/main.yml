@@ -1,8 +1,8 @@
 name: Release
-on:
+on:  
   push:
-    branches:
-      - master
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -20,7 +20,7 @@ jobs:
     - name: Run the Gradle package task
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
-        arguments: build
+        arguments: build -Pversion=${{github.ref_name}}
     - uses: ncipollo/release-action@v1
       with:
         allowUpdates: true
