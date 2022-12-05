@@ -23,6 +23,12 @@
 
   <change-notes><![CDATA[
         <p>
+        <b>1.2</b>
+        <ul>
+        <li>Remove debug option as its not working as expected</li>
+        </ul>
+        </p>
+        <p>
         <b>1.1</b>
         <ul>
         <li>Initial Bugfixes. Add logo</li>

@@ -40,7 +40,7 @@ class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : Settin
     private lateinit var kindPanel: JPanel
     private lateinit var kindSettingsPanel: JPanel
 
-    private lateinit var debugCheckbox: JCheckBox
+//    private lateinit var debugCheckbox: JCheckBox
     private lateinit var mochaMultiCheckbox: JCheckBox
 
     private lateinit var myCodeceptjsPckgLabel: JLabel
@@ -53,10 +53,8 @@ class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : Settin
 
     private val myLongestLabelWidth: Int
 
-    private val noExitArg = "--no-exit"
-    private val headedArg = "--headed"
-    private val noExitReg = "(?:^|\\s+)${noExitArg}(?:$|\\s+)".toRegex()
-    private val headedReg = "(?:^|\\s+)${headedArg}(?:$|\\s+)".toRegex()
+    private val debugArg = "--debug"
+    private val debugReg = "(?:^|\\s+)${debugArg}(?:$|\\s+)".toRegex()
 
 
     init {
@@ -77,7 +75,7 @@ class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : Settin
 
         this.myLongestLabelWidth = JLabel("Environment variables:").preferredSize.width
 
-        debugCheckbox.addActionListener { applyFromCheckboxes() }
+//        debugCheckbox.addActionListener { applyFromCheckboxes() }
         myCommonParams.programParametersComponent.component.editorField.document.addDocumentListener(object : DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
                 resetCheckboxes()
@@ -100,15 +98,15 @@ class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : Settin
 
     private fun applyFromCheckboxes() {
         val params = StringBuilder(myCommonParams.programParametersComponent.component.text)
-        val headed = processCheckbox(params, headedReg, headedArg, debugCheckbox.isSelected)
-        if (headed) {
-            myCommonParams.programParametersComponent.component.text = params.toString()
-        }
+//        val debug = processCheckbox(params, debugReg, debugArg, debugCheckbox.isSelected)
+//        if (debug) {
+//            myCommonParams.programParametersComponent.component.text = params.toString()
+//        }
     }
 
     private fun resetCheckboxes() {
         val text = myCommonParams.programParametersComponent.component.text
-        debugCheckbox.isSelected = headedReg.containsMatchIn(text)
+//        debugCheckbox.isSelected = debugReg.containsMatchIn(text)
     }
 
     private fun processCheckbox(params: StringBuilder, regex: Regex, tag: String, value: Boolean): Boolean {
