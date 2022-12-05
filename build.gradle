@@ -1,0 +1,54 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url 'https://jitpack.io'}
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+
+plugins {
+    id 'org.jetbrains.intellij' version '1.5.2'
+    id 'net.researchgate.release' version '2.6.0'
+}
+
+
+repositories {
+    jcenter()
+}
+
+
+
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply plugin: 'org.jetbrains.intellij'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+compileKotlin {
+    kotlinOptions.jvmTarget = 1.8
+}
+
+intellij {
+    pluginName.set( 'Codeceptjs Support' )
+    type.set(  'IU')
+
+    version.set(  "IU-$ideaVersion"  )
+    plugins.set(  ['JavaScriptLanguage', 'NodeJS', "JavaScriptDebugger", "Kotlin"] )
+
+
+    downloadSources.set( true  )
+    updateSinceUntilBuild.set(  false    )
+}
+
+runIde {
+  jvmArgs '-Xmx2G'
+}
+
+
+publishPlugin {
+    token = System.getenv("PUBLISH_TOKEN")
+}
