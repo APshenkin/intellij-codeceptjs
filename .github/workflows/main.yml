@@ -23,5 +23,6 @@ jobs:
         arguments: build -Pversion=${{github.ref_name}}
     - uses: ncipollo/release-action@v1
       with:
+        name: "Release: v${{github.ref_name}}"
         allowUpdates: true
         artifacts: "build/libs/intellij-codeceptjs-*.jar"
