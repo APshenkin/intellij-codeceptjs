@@ -40,7 +40,6 @@ class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : Settin
     private lateinit var kindPanel: JPanel
     private lateinit var kindSettingsPanel: JPanel
 
-    private lateinit var noExitCheckbox: JCheckBox
     private lateinit var debugCheckbox: JCheckBox
     private lateinit var mochaMultiCheckbox: JCheckBox
 
@@ -79,8 +78,6 @@ class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : Settin
         this.myLongestLabelWidth = JLabel("Environment variables:").preferredSize.width
 
         debugCheckbox.addActionListener { applyFromCheckboxes() }
-        noExitCheckbox.addActionListener { applyFromCheckboxes() }
-        mochaMultiCheckbox.addActionListener { processInteractiveCheckbox() }
         myCommonParams.programParametersComponent.component.editorField.document.addDocumentListener(object : DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
                 resetCheckboxes()
@@ -101,15 +98,10 @@ class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : Settin
         })
     }
 
-    private fun processInteractiveCheckbox() {
-        listOf(debugCheckbox, noExitCheckbox).forEach { it.isEnabled = !mochaMultiCheckbox.isSelected }
-    }
-
     private fun applyFromCheckboxes() {
         val params = StringBuilder(myCommonParams.programParametersComponent.component.text)
         val headed = processCheckbox(params, headedReg, headedArg, debugCheckbox.isSelected)
-        val noexit = processCheckbox(params, noExitReg, noExitArg, noExitCheckbox.isSelected)
-        if (headed || noexit) {
+        if (headed) {
             myCommonParams.programParametersComponent.component.text = params.toString()
         }
     }
@@ -117,7 +109,6 @@ class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : Settin
     private fun resetCheckboxes() {
         val text = myCommonParams.programParametersComponent.component.text
         debugCheckbox.isSelected = headedReg.containsMatchIn(text)
-        noExitCheckbox.isSelected = noExitReg.containsMatchIn(text)
     }
 
     private fun processCheckbox(params: StringBuilder, regex: Regex, tag: String, value: Boolean): Boolean {
@@ -211,7 +202,6 @@ class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : Settin
         view.resetFrom(data)
         mochaMultiCheckbox.isSelected = data.mochaMultiReporter
         data.npmRef?.let { myNodePackageField.selectedRef = NodePackageRef.create(it) }
-        processInteractiveCheckbox()
         resetCheckboxes()
     }
 
