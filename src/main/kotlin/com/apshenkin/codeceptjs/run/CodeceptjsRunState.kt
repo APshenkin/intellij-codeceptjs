@@ -13,6 +13,7 @@ import com.intellij.javascript.debugger.CommandLineDebugConfigurator
 import com.intellij.javascript.nodejs.*
 import com.intellij.javascript.nodejs.execution.NodeBaseRunProfileState
 import com.intellij.javascript.nodejs.execution.NodeTargetRun
+import com.intellij.javascript.nodejs.execution.NodeTargetRunOptions
 import com.intellij.javascript.nodejs.interpreter.NodeJsInterpreter
 import com.intellij.javascript.nodejs.interpreter.NodeJsInterpreterRef
 import com.intellij.javascript.nodejs.npm.NpmUtil
@@ -145,7 +146,7 @@ class CodeceptjsRunState(private val myEnv: ExecutionEnvironment, private val my
 
     override fun startProcess(configurator: CommandLineDebugConfigurator?): ProcessHandler {
         val interpreter: NodeJsInterpreter = NodeJsInterpreterRef.create(this.myRunConfiguration.getPersistentData().nodeJsRef).resolveNotNull(myEnv.project)
-        val targetRun = NodeTargetRun(interpreter, myProject, configurator, NodeTargetRun.createOptionsForTestConsole(listOf(), false, myRunConfiguration))
+        val targetRun = NodeTargetRun(interpreter, myProject, configurator, NodeTargetRunOptions.of(false, myRunConfiguration))
         val reporter = myRunConfiguration.getCodeceptjsReporterFile()
         configureCommandLine(targetRun, interpreter, reporter)
 

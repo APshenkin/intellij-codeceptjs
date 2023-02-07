@@ -2,6 +2,7 @@ buildscript {
     repositories {
         jcenter()
         maven { url 'https://jitpack.io'}
+        maven { url 'https://www.jetbrains.com/intellij-repository/snapshots' }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -33,7 +34,8 @@ intellij {
     pluginName.set( 'Codeceptjs Support' )
     type.set( 'IU' )
 
-    version.set(  "IU-$ideaVersion"  )
+//    version.set(  "IU-$ideaVersion"  )
+    version.set(  "231.6890-EAP-CANDIDATE-SNAPSHOT"  )
     plugins.set(  ['JavaScript', 'NodeJS', "JavaScriptDebugger", "Kotlin"] )
 
 

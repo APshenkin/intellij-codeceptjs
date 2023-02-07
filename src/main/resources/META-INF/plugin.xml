@@ -1,7 +1,7 @@
 <idea-plugin require-restart="true">
   <id>com.apshenkin.codeceptjs</id>
   <name>Codeceptjs Support</name>
-  <version>1.3</version>
+  <version>1.4</version>
   <vendor email="andrey.pshenkin@gmail.com" url="https://github.com/APshenkin/intellij-codeceptjs">apshenkin</vendor>
 
   <depends>com.intellij.modules.lang</depends>
@@ -54,7 +54,7 @@
   </change-notes>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="223.0"/>
+  <idea-version since-build="231.0"/>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
        on how to target different products -->

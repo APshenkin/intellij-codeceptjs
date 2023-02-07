@@ -71,7 +71,7 @@ class Utils {
                 if (argc == 1 && isSuiteMethodName(methodName, jsFile)) {
                     if (isSuiteComponents(components)) {
                         testNameExpression = Objects.requireNonNull(arguments[0]) as JSExpression
-                        name = JsPsiUtils.extractStringValue(testNameExpression)
+                        name = JsPsiUtils.getPrettyText(testNameExpression)
                         if (name != null) {
 
                             return Triple(properCallExpression, testNameExpression, name)
@@ -112,7 +112,7 @@ class Utils {
                 val name: String?
                 if (argc == 2 || argc == 3 || argc == 1 && hasTodo(components) && isSpecMethodName(methodName)) {
                     testNameExpression = Objects.requireNonNull(arguments[0]) as JSExpression
-                    name = JsPsiUtils.extractStringValue(testNameExpression)
+                    name = JsPsiUtils.getPrettyText(testNameExpression)
                     if (name != null) {
                         return ScenarioParseResult(properCallExpression, testNameExpression, name, isDataBasedTest)
                     }
