@@ -28,6 +28,7 @@ import javax.swing.text.JTextComponent
 
 class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : SettingsEditor<CodeceptjsRunConfig>(), PanelWithAnchor {
 
+    private lateinit var myTabs: JTabbedPane
 
     private lateinit var myCommonParams: CommonProgramParametersPanel
     private lateinit var myWholePanel: JPanel
