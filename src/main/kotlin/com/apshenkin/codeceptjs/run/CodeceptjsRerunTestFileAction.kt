@@ -1,7 +1,5 @@
 package com.apshenkin.codeceptjs.run
 
-import com.intellij.execution.Executor
-import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.testframework.actions.AbstractRerunFailedTestsAction
@@ -16,15 +14,15 @@ class CodeceptjsRerunTestFileAction(consoleView: SMTRunnerConsoleView, consolePr
     }
 
     override fun getRunProfile(environment: ExecutionEnvironment): MyRunProfile {
-        val configuration = this.myConsoleProperties.configuration as CodeceptjsRunConfig
-        val state = CodeceptjsRunState(environment, configuration)
+//        val configuration = this.myConsoleProperties.configuration as CodeceptjsRunConfig
+//        val state = CodeceptjsRunState(environment, configuration)
         TODO("codeceptjs currently can't define test pattern to run")
 //        state.setFailedTests(convertToTestFqns(this.getFailedTests(configuration.project)))
-        return object : MyRunProfile(configuration) {
-            override fun getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState {
-                return state
-            }
-        }
+//        return object : MyRunProfile(configuration) {
+//            override fun getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState {
+//                return state
+//            }
+//        }
     }
 
     private fun convertToTestFqns(tests: List<AbstractTestProxy>): List<List<String>> {

@@ -28,8 +28,8 @@ You can navigate from a test entry in the test tab to the source code of this te
 Your tests now are displayed in IDEA File Structure tab, where you can quick navigate and use fuzzy search
 ![](./media/fileStructure.jpg)
 
-### TODO:
-1. Implement `Data()` block handling
+### Limitations:
+1. [Data Driven Tests](https://codecept.io/advanced/#data-driven-tests) run configuration allow you only to run all cases with all data sets. This is because data can be any js object, and it's hard to get access to final string that will be added to test name. If you have ideas, how to implement this, you are welcome to create PR for it 🙃
 
 ## Build plugin from the sources
 ```bash

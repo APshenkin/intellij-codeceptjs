@@ -1,7 +1,7 @@
-<idea-plugin version="2" require-restart="true">
+<idea-plugin require-restart="true">
   <id>com.apshenkin.codeceptjs</id>
   <name>Codeceptjs Support</name>
-  <version>1.5</version>
+  <version>1.3</version>
   <vendor email="andrey.pshenkin@gmail.com" url="https://github.com/APshenkin/intellij-codeceptjs">apshenkin</vendor>
 
   <depends>com.intellij.modules.lang</depends>
@@ -22,6 +22,15 @@
   </description>
 
   <change-notes><![CDATA[
+        <p>
+        <b>1.3</b>
+        <ul>
+        <li>Add support for Data() blocks in tests</li>
+        <li>Fix Mocha Regexp handling (get exact test that needed and escape special characters)</li>
+        <li>Disable mocha-multi report by default and auto-enable it if package exist</li>
+        <li>Replace some deprecated plugin APIs</li>
+        </ul>
+        </p>
         <p>
         <b>1.2</b>
         <ul>
@@ -44,7 +53,7 @@
   </change-notes>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="221.0"/>
+  <idea-version since-build="223.0"/>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
        on how to target different products -->

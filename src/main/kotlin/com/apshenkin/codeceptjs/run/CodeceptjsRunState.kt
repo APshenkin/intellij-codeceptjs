@@ -1,6 +1,5 @@
 package com.apshenkin.codeceptjs.run
 
-import com.apshenkin.codeceptjs.utils.Utils
 import com.intellij.execution.DefaultExecutionResult
 import com.intellij.execution.ExecutionResult
 import com.intellij.execution.configuration.EnvironmentVariablesData
@@ -19,6 +18,7 @@ import com.intellij.javascript.nodejs.interpreter.NodeJsInterpreterRef
 import com.intellij.javascript.nodejs.npm.NpmUtil
 import com.intellij.javascript.nodejs.util.NodePackage
 import com.intellij.javascript.nodejs.util.NodePackageRef
+import com.intellij.javascript.testing.JSTestRunnerUtil
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
@@ -29,21 +29,11 @@ import java.nio.file.Files
 
 private val reporterPackage = "codeceptjs-intellij-reporter"
 
-class CodeceptjsRunState(private val myEnv: ExecutionEnvironment, private val myRunConfiguration: CodeceptjsRunConfig) :
-        NodeBaseRunProfileState {
-    private val testKeywords = listOf(Utils.SCENARIO_NAME, Utils.FEATURE_NAME)
-    private val onlyKeywordRegex = "^(${testKeywords.joinToString("|")})\\.only$".toRegex()
-
+class CodeceptjsRunState(private val myEnv: ExecutionEnvironment, private val myRunConfiguration: CodeceptjsRunConfig) : NodeBaseRunProfileState {
     private val myProject = myEnv.project
 
-    private fun createSMTRunnerConsoleView(
-            workingDirectory: File?,
-            consoleProperties: CodeceptjsConsoleProperties
-    ): ConsoleView {
-        val consoleView = SMTestRunnerConnectionUtil.createConsole(
-                consoleProperties.testFrameworkName,
-                consoleProperties
-        ) as SMTRunnerConsoleView
+    private fun createSMTRunnerConsoleView(workingDirectory: File?, consoleProperties: CodeceptjsConsoleProperties): ConsoleView {
+        val consoleView = SMTestRunnerConnectionUtil.createConsole(consoleProperties.testFrameworkName, consoleProperties) as SMTRunnerConsoleView
         consoleProperties.addStackTraceFilter(NodeStackTraceFilter(this.myProject, workingDirectory))
         consoleProperties.stackTrackFilters.forEach { consoleView.addMessageFilter(it) }
         consoleView.addMessageFilter(NodeConsoleAdditionalFilter(this.myProject, workingDirectory))
@@ -51,11 +41,7 @@ class CodeceptjsRunState(private val myEnv: ExecutionEnvironment, private val my
         return consoleView
     }
 
-    private fun configureCommandLine(
-            targetRun: NodeTargetRun,
-            interpreter: NodeJsInterpreter,
-            reporter: String?
-    ): PsiElement? {
+    private fun configureCommandLine(targetRun: NodeTargetRun, interpreter: NodeJsInterpreter, reporter: String?): PsiElement? {
         var onlyFile: PsiElement? = null
         val commandLine = targetRun.commandLineBuilder
         val clone = this.myRunConfiguration.clone() as CodeceptjsRunConfig
@@ -65,13 +51,19 @@ class CodeceptjsRunState(private val myEnv: ExecutionEnvironment, private val my
         if (workingDirectory.isNotBlank()) {
             commandLine.setWorkingDirectory(workingDirectory)
         }
+
+        val hasMochaMulti = clone.hasMochaMultiPackage()
+
+        if (!data.mochaMultiReporter && hasMochaMulti) {
+            data.mochaMultiReporter = true
+        }
+
         var envs = data.envs.toMutableMap()
         val startCmd = "run"
         val cliFile = "bin/codecept"
-        data.npmRef
-                .takeIf { it?.isNotEmpty() ?: false }
-                ?.let { NpmUtil.resolveRef(NodePackageRef.create(it), myProject, interpreter) }
-                ?.let { pkg ->
+        data.npmRef.takeIf {
+                    it?.isNotEmpty() ?: false
+                }?.let { NpmUtil.resolveRef(NodePackageRef.create(it), myProject, interpreter) }?.let { pkg ->
                     var exe = pkg.systemIndependentPath
                     if (exe.endsWith("npm") || exe.endsWith("npm.cmd")) {
                         exe = exe.reversed().replaceFirst("mpn", "xpn").reversed()
@@ -84,31 +76,23 @@ class CodeceptjsRunState(private val myEnv: ExecutionEnvironment, private val my
                     commandLine.addParameter("codeceptjs")
                 } ?: commandLine.addParameters(
                 // falling back and run codeceptjs directly without package manager
-                (clone.getCodeceptjsPackage().takeIf { it.systemIndependentPath.isNotBlank() } ?: NodePackage.findDefaultPackage(
-                        myProject,
-                        "codeceptjs",
-                        interpreter
-                ))!!.systemDependentPath + "/$cliFile")
+                (clone.getCodeceptjsPackage().takeIf { it.systemIndependentPath.isNotBlank() }
+                        ?: NodePackage.findDefaultPackage(myProject, "codeceptjs", interpreter))!!.systemDependentPath + "/$cliFile")
 
         commandLine.addParameter(startCmd)
         val specParams = mutableListOf<String>()
-        val specParamGenerator = { i: String, ni: String -> ni }
-        specParams.add(
-                when (data.kind) {
-                    CodeceptjsRunConfig.TestKind.DIRECTORY -> {
-                        "${
-                            specParamGenerator(
-                                    File(data.specsDir!!).name,
-                                    FileUtil.toSystemDependentName(data.specsDir!!)
-                            )
-                        }/**/*"
-                    }
+        val specParamGenerator = { _: String, ni: String -> ni }
+        specParams.add(when (data.kind) {
+            CodeceptjsRunConfig.TestKind.DIRECTORY -> {
+                "${
+                    specParamGenerator(File(data.specsDir!!).name, FileUtil.toSystemDependentName(data.specsDir!!))
+                }/**/*"
+            }
 
-                    CodeceptjsRunConfig.TestKind.SPEC, CodeceptjsRunConfig.TestKind.TEST -> {
-                        specParamGenerator(File(data.specFile!!).name, data.specFile!!)
-                    }
-                }
-        )
+            CodeceptjsRunConfig.TestKind.SPEC, CodeceptjsRunConfig.TestKind.TEST -> {
+                specParamGenerator(File(data.specFile!!).name, data.specFile!!)
+            }
+        })
         commandLine.addParameters(specParams)
         if (data.additionalParams.isNotBlank()) {
             val params = data.additionalParams.trim().split("\\s+".toRegex()).toMutableList()
@@ -117,7 +101,7 @@ class CodeceptjsRunState(private val myEnv: ExecutionEnvironment, private val my
         if (data.mochaMultiReporter) {
             envs.put("IJ_CODECEPTJS_MOCHA_MULTI", "true")
         }
-        targetRun.configureEnvironment(EnvironmentVariablesData.create(envs, data.passParentEnvs))
+        targetRun.envData = EnvironmentVariablesData.create(envs, data.passParentEnvs)
         if (data.mochaMultiReporter) {
             commandLine.addParameter("--reporter")
             commandLine.addParameter("mocha-multi")
@@ -129,18 +113,16 @@ class CodeceptjsRunState(private val myEnv: ExecutionEnvironment, private val my
         }
         if (data.kind == CodeceptjsRunConfig.TestKind.TEST) {
             commandLine.addParameter("--grep")
-            data.testName?.let { commandLine.addParameter(it) }
+            data.allNames?.let {
+                commandLine.addParameter("^" + JSTestRunnerUtil.escapeJavaScriptRegexp(it.joinToString(separator = ": ")) + if (data.allNames!!.size > 1 && !data.isDataBasedTest) "$" else "")
+            }
         }
         return onlyFile
     }
 
     private fun CodeceptjsRunConfig.getCodeceptjsReporterFile(): String {
         getContextFile()?.let {
-            val info = NodeModuleSearchUtil.resolveModuleFromNodeModulesDir(
-                    it,
-                    reporterPackage,
-                    NodeModuleDirectorySearchProcessor.PROCESSOR
-            )
+            val info = NodeModuleSearchUtil.resolveModuleFromNodeModulesDir(it, reporterPackage, NodeModuleDirectorySearchProcessor.PROCESSOR)
             if (info != null && info.moduleSourceRoot.isDirectory) {
                 return NodePackage(info.moduleSourceRoot.path).systemIndependentPath
             }
@@ -151,12 +133,7 @@ class CodeceptjsRunState(private val myEnv: ExecutionEnvironment, private val my
 
 
     override fun createExecutionResult(processHandler: ProcessHandler): ExecutionResult {
-        val consoleProperties = CodeceptjsConsoleProperties(
-                this.myRunConfiguration,
-                this.myEnv.executor,
-                CodeceptjsTestLocationProvider(),
-                NodeCommandLineUtil.shouldUseTerminalConsole(processHandler)
-        )
+        val consoleProperties = CodeceptjsConsoleProperties(this.myRunConfiguration, this.myEnv.executor, CodeceptjsTestLocationProvider(), NodeCommandLineUtil.shouldUseTerminalConsole(processHandler))
         val workingDir: File? = if (StringUtil.isEmpty(this.myRunConfiguration.workingDirectory)) null else File(this.myRunConfiguration.workingDirectory!!)
         val consoleView = createSMTRunnerConsoleView(workingDir, consoleProperties)
         ProcessTerminatedListener.attach(processHandler)
@@ -167,8 +144,7 @@ class CodeceptjsRunState(private val myEnv: ExecutionEnvironment, private val my
     }
 
     override fun startProcess(configurator: CommandLineDebugConfigurator?): ProcessHandler {
-        val interpreter: NodeJsInterpreter = NodeJsInterpreterRef.create(this.myRunConfiguration.getPersistentData().nodeJsRef)
-                .resolveNotNull(myEnv.project)
+        val interpreter: NodeJsInterpreter = NodeJsInterpreterRef.create(this.myRunConfiguration.getPersistentData().nodeJsRef).resolveNotNull(myEnv.project)
         val targetRun = NodeTargetRun(interpreter, myProject, configurator, NodeTargetRun.createOptionsForTestConsole(listOf(), false, myRunConfiguration))
         val reporter = myRunConfiguration.getCodeceptjsReporterFile()
         configureCommandLine(targetRun, interpreter, reporter)

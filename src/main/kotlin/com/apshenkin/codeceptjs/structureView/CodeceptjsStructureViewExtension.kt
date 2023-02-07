@@ -12,7 +12,7 @@ import com.intellij.psi.PsiElement
 
 /**
  * Extends the structure view, so we can include all
- * the pest tests in it.
+ * the codeceptjs tests in it.
  */
 class CodeceptjsStructureViewExtension : StructureViewExtension {
     override fun getType(): Class<out PsiElement> {
@@ -63,7 +63,7 @@ private fun JSFile.getCodeceptjsTests(): ArrayList<JSCallWithTestName> {
                 val scenario = Utils.parseScenarioExpr(jsCallExpression)
 
                 if (scenario != null && suiteStructure != null) {
-                    suiteStructure.addChild(CodeceptjsStructureViewElement(JSCallWithTestName(scenario.third, scenario.first)))
+                    suiteStructure.addChild(CodeceptjsStructureViewElement(JSCallWithTestName(scenario.name, scenario.callExpression)))
                 }
             }
         }

@@ -1,8 +1,10 @@
 package com.apshenkin.codeceptjs.run
 
 import com.apshenkin.codeceptjs.structure.CodeceptjsFileStructureBuilder
+import com.apshenkin.codeceptjs.utils.CodeceptjsSpecStructure
 import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.configurations.ConfigurationFactory
+import com.intellij.javascript.testFramework.JsTestElementPath
 import com.intellij.javascript.testFramework.interfaces.mochaTdd.MochaTddFileStructureBuilder
 import com.intellij.javascript.testing.JsTestRunConfigurationProducer
 import com.intellij.lang.javascript.psi.JSFile
@@ -45,7 +47,9 @@ class CodeceptjsRunConfigProducer : JsTestRunConfigurationProducer<CodeceptjsRun
 
         val textRange = element.textRange ?: return null
 
-        val path = findTestByRange(containingFile, textRange)
+        val test = findTestByRange(containingFile, textRange)
+        val path = test.first
+        val dataDrivenTest = test.second
         if (path == null) {
             templateRunSettings.kind = CodeceptjsRunConfig.TestKind.SPEC
             templateRunSettings.specFile = containingFile.virtualFile.canonicalPath
@@ -56,6 +60,7 @@ class CodeceptjsRunConfigProducer : JsTestRunConfigurationProducer<CodeceptjsRun
         templateRunSettings.allNames = path.allNames
         if (templateRunSettings.kind == CodeceptjsRunConfig.TestKind.TEST) {
             templateRunSettings.testName = path.testName ?: path.suiteNames.last()
+            templateRunSettings.isDataBasedTest = dataDrivenTest
         }
         return CodeceptjsTestElementInfo(templateRunSettings, path.testElement)
     }
@@ -88,6 +93,18 @@ fun findFileUpwards(specName: VirtualFile, fileName: Array<String>): VirtualFile
     return null
 }
 
-fun findTestByRange(containingFile: JSFile, textRange: TextRange) =
-        (CodeceptjsFileStructureBuilder.getInstance().fetchCachedTestFileStructure(containingFile).findTestElementPath(textRange)
-                ?: MochaTddFileStructureBuilder.getInstance().fetchCachedTestFileStructure(containingFile).findTestElementPath(textRange))
+fun findTestByRange(containingFile: JSFile, textRange: TextRange): Pair<JsTestElementPath?, Boolean> {
+    val codeceptjsElement = CodeceptjsFileStructureBuilder.getInstance().fetchCachedTestFileStructure(containingFile).findJasmineElement(textRange)
+
+    if (codeceptjsElement != null) {
+        return Pair(
+                CodeceptjsFileStructureBuilder.getInstance().fetchCachedTestFileStructure(containingFile).findTestElementPath(textRange),
+                (codeceptjsElement as CodeceptjsSpecStructure).isDataDrivenTest
+        )
+    }
+
+    return Pair(
+            MochaTddFileStructureBuilder.getInstance().fetchCachedTestFileStructure(containingFile).findTestElementPath(textRange),
+            false
+    )
+}

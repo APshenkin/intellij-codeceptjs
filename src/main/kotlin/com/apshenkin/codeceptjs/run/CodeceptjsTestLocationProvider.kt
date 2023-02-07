@@ -17,11 +17,13 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.containers.ContainerUtil
+import org.codehaus.jettison.json.JSONObject
 
 class CodeceptjsTestLocationProvider : SMTestLocator {
     private val SUITE_PROTOCOL_ID = "suite"
     private val TEST_PROTOCOL_ID = "test"
     private val SPLIT_CHAR = '.'
+    private val DATA_SPLIT_CHAR = " | "
 
 
     override fun getLocation(protocol: String, path: String, metaInfo: String?, project: Project, scope: GlobalSearchScope): List<Location<*>> {
@@ -40,6 +42,22 @@ class CodeceptjsTestLocationProvider : SMTestLocator {
 
     private fun getTestLocation(project: Project, locationData: String, testFilePath: String?, isSuite: Boolean): Location<*>? {
         val path = EscapeUtils.split(locationData, SPLIT_CHAR).ifEmpty { return null }
+
+        // as Data Driven tests set arguments as string in end of test as a JSON we should remove them to have proper links
+        val lastPath = path.lastOrNull()
+        if (lastPath != null && lastPath.contains(" | ")) {
+            val paramsJson = lastPath.split(DATA_SPLIT_CHAR).lastOrNull()
+
+            if (paramsJson != null) {
+                try {
+                    JSONObject(paramsJson)
+
+                    path[path.lastIndex] = lastPath.replace(" | $paramsJson", "")
+                } catch (_: Throwable) {
+
+                }
+            }
+        }
         val psiElement: PsiElement? = findCodeceptjsElement(project, path, testFilePath, isSuite)
         return if (psiElement != null) PsiLocation.fromPsiElement(psiElement) else null
     }

@@ -83,10 +83,23 @@ class Utils {
             return null
         }
 
-        fun parseScenarioExpr(callExpression: JSCallExpression): Triple<JSCallExpression, JSExpression, String>? {
+        fun parseScenarioExpr(callExpression: JSCallExpression): ScenarioParseResult? {
             val properCallExpression = getProperCallExpr(callExpression)
             val expr = getMethodReferenceExpression(properCallExpression)
-            val components = if (expr != null) JSReferenceUtil.getReferenceComponents(expr, 3) else mutableListOf<String>()
+            var isDataBasedTest = false
+            val components = if (expr != null) {
+                if (expr.referenceName == SCENARIO_NAME
+                        && expr.qualifier != null
+                        && expr.qualifier!!.children.isNotEmpty()
+                        && ObjectUtils.tryCast(expr.qualifier!!.children[0], JSReferenceExpression::class.java)?.referenceName == DATA_NAME) {
+                    val c = mutableListOf<String>()
+                    c.add(expr.referenceName!!)
+                    isDataBasedTest = true
+                    c
+                } else {
+                    JSReferenceUtil.getReferenceComponents(expr, 3)
+                }
+            } else mutableListOf<String>()
             val each = components.size > 1 && "each" == ContainerUtil.getLastItem(components)
             if (each) {
                 components.removeAt(components.size - 1)
@@ -101,7 +114,7 @@ class Utils {
                     testNameExpression = Objects.requireNonNull(arguments[0]) as JSExpression
                     name = JsPsiUtils.extractStringValue(testNameExpression)
                     if (name != null) {
-                        return Triple(properCallExpression, testNameExpression, name)
+                        return ScenarioParseResult(properCallExpression, testNameExpression, name, isDataBasedTest)
                     }
                 }
             }
@@ -110,7 +123,7 @@ class Utils {
         }
 
         private fun isSpecMethodName(methodName: String): Boolean {
-            return methodName == SCENARIO_NAME || methodName == XSCENARIO_NAME
+            return methodName == SCENARIO_NAME || methodName == XSCENARIO_NAME || methodName == DATA_NAME
         }
 
         private fun isSuiteMethodName(methodName: String, psiFile: PsiFile): Boolean {

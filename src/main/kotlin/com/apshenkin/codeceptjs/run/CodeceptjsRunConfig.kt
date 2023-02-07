@@ -150,16 +150,21 @@ class CodeceptjsRunConfig(
         TODO("Not yet implemented")
     }
 
+    fun hasMochaMultiPackage(): Boolean {
+        try {
+            val packageDependency = mochaMultiPackageDescriptor.findFirstDirectDependencyPackage(project, interpreter, getContextFile())
+            return packageDependency.systemDependentPath.isNotEmpty()
+        } catch (_: Throwable) {
+            return false
+        }
+    }
+
     fun getCodeceptjsPackage(): NodePackage {
-        return if (RunManager.getInstance(this.project).isTemplate(this)) {
-            createCodeceptjsPckg() ?: NodePackage("")
-        } else {
-            createCodeceptjsPckg() ?: run {
-                val interpreter = NodeJsInterpreterRef.create(myCodeceptjsRunSettings.nodeJsRef).resolve(project)
-                val pkg = codeceptjsPackageDescriptor.findFirstDirectDependencyPackage(project, interpreter, getContextFile())
-                myCodeceptjsRunSettings.codeceptjsPackageRef = pkg.systemIndependentPath
-                pkg
-            }
+        return createCodeceptjsPckg() ?: run {
+            val interpreter = NodeJsInterpreterRef.create(myCodeceptjsRunSettings.nodeJsRef).resolve(project)
+            val pkg = codeceptjsPackageDescriptor.findFirstDirectDependencyPackage(project, interpreter, getContextFile())
+            myCodeceptjsRunSettings.codeceptjsPackageRef = pkg.systemIndependentPath
+            pkg
         }
     }
 
@@ -170,6 +175,8 @@ class CodeceptjsRunConfig(
     companion object {
         val codeceptjsPackageName = "codeceptjs"
         val codeceptjsPackageDescriptor = NodePackageDescriptor(listOf(codeceptjsPackageName), emptyMap(), null)
+        val mochaMultiPackageName = "mocha-multi"
+        val mochaMultiPackageDescriptor = NodePackageDescriptor(listOf(mochaMultiPackageName), emptyMap(), null)
     }
 
     data class CodeceptjsRunSettings(val u: Unit? = null) : Cloneable {
@@ -214,7 +221,10 @@ class CodeceptjsRunConfig(
         var kind: TestKind = TestKind.SPEC
 
         @JvmField
-        var mochaMultiReporter: Boolean = true
+        var isDataBasedTest: Boolean = false
+
+        @JvmField
+        var mochaMultiReporter: Boolean = false
 
 
         public override fun clone(): CodeceptjsRunSettings {

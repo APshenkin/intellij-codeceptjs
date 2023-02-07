@@ -10,8 +10,8 @@ buildscript {
 
 
 plugins {
-    id 'org.jetbrains.intellij' version '1.5.2'
-    id 'net.researchgate.release' version '2.6.0'
+    id 'org.jetbrains.intellij' version '1.12.0'
+    id 'net.researchgate.release' version '3.0.2'
 }
 
 
@@ -19,29 +19,26 @@ repositories {
     jcenter()
 }
 
-
-
-
 apply plugin: 'java'
 apply plugin: 'kotlin'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'idea'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 17
 compileKotlin {
-    kotlinOptions.jvmTarget = 1.8
+    kotlinOptions.jvmTarget = 17
 }
 
 intellij {
     pluginName.set( 'Codeceptjs Support' )
-    type.set(  'IU')
+    type.set( 'IU' )
 
     version.set(  "IU-$ideaVersion"  )
-    plugins.set(  ['JavaScriptLanguage', 'NodeJS', "JavaScriptDebugger", "Kotlin"] )
+    plugins.set(  ['JavaScript', 'NodeJS', "JavaScriptDebugger", "Kotlin"] )
 
 
-    downloadSources.set( true  )
-    updateSinceUntilBuild.set(  false    )
+    downloadSources.set( true )
+    updateSinceUntilBuild.set( false )
 }
 
 runIde {

@@ -28,7 +28,6 @@ import javax.swing.text.JTextComponent
 
 class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : SettingsEditor<CodeceptjsRunConfig>(), PanelWithAnchor {
 
-    private lateinit var myTabs: JTabbedPane
 
     private lateinit var myCommonParams: CommonProgramParametersPanel
     private lateinit var myWholePanel: JPanel
@@ -36,11 +35,9 @@ class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : Settin
     private lateinit var myNodePackageField: NodePackageField
     private lateinit var myNodeJsInterpreterField: NodeJsInterpreterField
     private lateinit var myCodeceptjsPackageField: NodePackageField
-    private val kindButtons: Array<JRadioButton> = Array(CodeceptjsRunConfig.TestKind.values().size) { JRadioButton(CodeceptjsRunConfig.TestKind.values()[it].myName) }
     private lateinit var kindPanel: JPanel
     private lateinit var kindSettingsPanel: JPanel
 
-//    private lateinit var debugCheckbox: JCheckBox
     private lateinit var mochaMultiCheckbox: JCheckBox
 
     private lateinit var myCodeceptjsPckgLabel: JLabel
@@ -52,9 +49,6 @@ class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : Settin
     private val myTestKindViewMap: MutableMap<CodeceptjsRunConfig.TestKind, CodeceptjsTestKindView> = EnumMap(CodeceptjsRunConfig.TestKind::class.java)
 
     private val myLongestLabelWidth: Int
-
-    private val debugArg = "--debug"
-    private val debugReg = "(?:^|\\s+)${debugArg}(?:$|\\s+)".toRegex()
 
 
     init {
@@ -97,7 +91,7 @@ class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : Settin
     }
 
     private fun applyFromCheckboxes() {
-        val params = StringBuilder(myCommonParams.programParametersComponent.component.text)
+//        val params = StringBuilder(myCommonParams.programParametersComponent.component.text)
 //        val debug = processCheckbox(params, debugReg, debugArg, debugCheckbox.isSelected)
 //        if (debug) {
 //            myCommonParams.programParametersComponent.component.text = params.toString()
@@ -105,7 +99,7 @@ class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : Settin
     }
 
     private fun resetCheckboxes() {
-        val text = myCommonParams.programParametersComponent.component.text
+//        val text = myCommonParams.programParametersComponent.component.text
 //        debugCheckbox.isSelected = debugReg.containsMatchIn(text)
     }
 
@@ -126,7 +120,7 @@ class CodeceptjsConfigurableEditorPanel(private val myProject: Project) : Settin
         val testKindPanel = JPanel(FlowLayout(1, JBUIScale.scale(30), 0))
         testKindPanel.border = JBUI.Borders.emptyLeft(10)
         val buttonGroup = ButtonGroup()
-        CodeceptjsRunConfig.TestKind.values().forEachIndexed { index, testKind ->
+        CodeceptjsRunConfig.TestKind.values().forEachIndexed { _, testKind ->
             val radioButton = JRadioButton(UIUtil.removeMnemonic(testKind.myName))
             val mnemonicInd = UIUtil.getDisplayMnemonicIndex(testKind.myName)
             if (mnemonicInd != -1) {

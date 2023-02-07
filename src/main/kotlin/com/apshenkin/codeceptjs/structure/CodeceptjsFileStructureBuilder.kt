@@ -1,9 +1,9 @@
 package com.apshenkin.codeceptjs.structure
 
+import com.apshenkin.codeceptjs.utils.CodeceptjsSpecStructure
 import com.apshenkin.codeceptjs.utils.Utils
 import com.intellij.javascript.testFramework.AbstractTestFileStructureBuilder
 import com.intellij.javascript.testFramework.jasmine.JasmineFileStructure
-import com.intellij.javascript.testFramework.jasmine.JasmineSpecStructure
 import com.intellij.javascript.testFramework.jasmine.JasmineSuiteStructure
 import com.intellij.javascript.testFramework.util.JsPsiUtils
 import com.intellij.lang.javascript.psi.JSCallExpression
@@ -72,7 +72,7 @@ class CodeceptjsFileStructureBuilder : AbstractTestFileStructureBuilder<JasmineF
         private fun handleScenarioExpr(parentSuiteStructure: JasmineSuiteStructure?, callExpression: JSCallExpression) {
             val scenario = Utils.parseScenarioExpr(callExpression)
             if (scenario != null) {
-                val specStructure = JasmineSpecStructure(scenario.first, scenario.second, scenario.third, parentSuiteStructure)
+                val specStructure = CodeceptjsSpecStructure(scenario, parentSuiteStructure)
                 if (parentSuiteStructure != null) {
                     parentSuiteStructure.addChild(specStructure)
                 }
