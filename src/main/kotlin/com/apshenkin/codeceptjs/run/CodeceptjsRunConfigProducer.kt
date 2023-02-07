@@ -99,7 +99,8 @@ fun findTestByRange(containingFile: JSFile, textRange: TextRange): Pair<JsTestEl
     if (codeceptjsElement != null) {
         return Pair(
                 CodeceptjsFileStructureBuilder.getInstance().fetchCachedTestFileStructure(containingFile).findTestElementPath(textRange),
-                (codeceptjsElement as CodeceptjsSpecStructure).isDataDrivenTest
+                // for Features, we should not set end line regexp so true by default
+                if (codeceptjsElement is CodeceptjsSpecStructure) codeceptjsElement.isDataDrivenTest else true
         )
     }
 
