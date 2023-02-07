@@ -17,6 +17,7 @@
         <li>Report tests live inside IDE using common <a href="https://www.jetbrains.com/help/idea/test-runner-tab.html">test view</a></li>
         <li>Navigate from test report entries to the code by click</li>
         </ul>
+        <p>To setup reports with mocha-multi please check <a title="instructions on Github" href="https://github.com/APshenkin/intellij-codeceptjs#setting-up-plugin-with-mocha-multi-reporter">instructions on Github</a></p>
         <p>Please report any issues or feature requests on the <a title="tracker" href="https://github.com/APshenkin/intellij-codeceptjs/issues">tracker</a></p>
 ]]>
   </description>
